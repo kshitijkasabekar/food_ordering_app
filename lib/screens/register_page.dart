@@ -14,8 +14,16 @@ class _RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(
         title: const Text('Register'),
       ),
-      body: const Center(
-        child: Text('Register Screen'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: const [
+              Text('Create an account'),
+            ],
+          ),
+        ),
       ),
     );
   }
