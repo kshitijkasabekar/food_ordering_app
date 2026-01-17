@@ -9,6 +9,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +32,14 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: _nameController,
                 decoration: const InputDecoration(
                   labelText: 'Full Name',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _usernameController,
+                decoration: const InputDecoration(
+                  labelText: 'Username',
                   border: OutlineInputBorder(),
                 ),
               ),
