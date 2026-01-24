@@ -54,7 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
+                    if (value == null || value.trim().isEmpty) {
                       return 'Please enter a username';
                     }
                     return null;
