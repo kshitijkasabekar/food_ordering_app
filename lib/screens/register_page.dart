@@ -36,8 +36,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   'Create an account',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
+                
                 const SizedBox(height: 24),
-
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
@@ -47,17 +47,21 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
 
                 const SizedBox(height: 16),
-
                 TextFormField(
                   controller: _usernameController,
                   decoration: const InputDecoration(
                     labelText: 'Username',
                     border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a username';
+                    }
+                    return null;
+                  },
                 ),
 
                 const SizedBox(height: 16),
-
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -69,7 +73,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
 
                 const SizedBox(height: 16),
-
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
@@ -80,7 +83,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
 
                 const SizedBox(height: 16),
-
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: true,
@@ -91,7 +93,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
 
                 const SizedBox(height: 16),
-
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
@@ -103,7 +104,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
 
                 const SizedBox(height: 16),
-
                 TextFormField(
                   controller: _addressController,
                   maxLines: 3,
