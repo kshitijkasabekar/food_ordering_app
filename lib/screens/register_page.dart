@@ -115,7 +115,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () {
-                      // Register action will go here
+                      if (_formKey.currentState!.validate()) {
+                        print('Form is valid');
+                      } else {
+                        print('Form is invalid');
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
