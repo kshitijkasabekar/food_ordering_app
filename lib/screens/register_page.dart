@@ -128,6 +128,15 @@ class _RegisterPageState extends State<RegisterPage> {
                     labelText: 'Phone Number',
                     border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Phone number is required';
+                      }
+                      if (value.trim().length < 10) {
+                        return 'Enter a valid phone number';
+                      }
+                      return null;
+                    },
                 ),
 
                 const SizedBox(height: 16),
@@ -138,6 +147,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     labelText: 'Address',
                     border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Address is required';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 24),
                   ElevatedButton(
