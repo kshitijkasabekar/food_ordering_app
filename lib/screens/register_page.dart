@@ -70,6 +70,15 @@ class _RegisterPageState extends State<RegisterPage> {
                     labelText: 'Email',
                     border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter an email';
+                    }
+                    if (!value.contains('@') || !value.contains('.')) {
+                      return 'Enter a valid email address';
+                    }
+                    return null;
+                  },
                 ),
 
                 const SizedBox(height: 16),
