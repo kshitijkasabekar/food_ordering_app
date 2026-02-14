@@ -21,6 +21,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final AuthService _authService = AuthService();
 
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -159,8 +161,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: () async {
+                    onPressed: _isLoading ? null : () async {
                       if (_formKey.currentState!.validate()) {
+                        setState(() {
+                          _isLoading = true;
+                        });
                         try {
                           final success = await _authService.register(
                             username: _usernameController.text.trim(),
@@ -179,16 +184,26 @@ class _RegisterPageState extends State<RegisterPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Error: $e')),
                           );
+                        } finally {
+                          setState(() {
+                            _isLoading = false;
+                          });
                         }
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text(
-                      'Register',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text(
+                            'Register',
+                            style: TextStyle(fontSize: 16),
+                          ),
                   ),
               ],
             ),
