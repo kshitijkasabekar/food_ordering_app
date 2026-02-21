@@ -47,6 +47,12 @@ class _LoginPageState extends State<LoginPage> {
                     labelText: 'Username',
                     border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your username';
+                    }
+                    return null;
+                  },
                 ),
 
                 const SizedBox(height: 16),
@@ -57,6 +63,12 @@ class _LoginPageState extends State<LoginPage> {
                     labelText: 'Password',
                     border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    return null;
+                  },
                 ),
 
                 const SizedBox(height: 24),
@@ -75,8 +87,15 @@ class _LoginPageState extends State<LoginPage> {
                     }
                   },
                   child: _isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('Login'),
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text('Login'),
                 )
               ],
             ),
