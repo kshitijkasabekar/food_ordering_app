@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 class AuthService {
   static const String baseUrl = 'http://10.0.2.2:8000';
 
+  // Register
   Future<bool> register({
     required String username,
     required String password,
@@ -30,7 +31,45 @@ class AuthService {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return true;
     } else {
-      throw Exception('Failed to register: ${response.body}');
+      throw Exception(
+        'Registration failed (${response.statusCode}): ${response.body}',
+      );
+    }
+  }
+
+  // login
+  Future<Map<String, String>> login({
+    required String username,
+    required String password,
+  }) async {
+    final url = Uri.parse('$baseUrl/login/');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'username': username,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      if (data['access'] != null && data['refresh'] != null) {
+        return {
+          'access': data['access'],
+          'refresh': data['refresh'],
+        };
+      } else {
+        throw Exception('Invalid token response');
+      }
+    } else {
+      throw Exception(
+        'Login failed (${response.statusCode}): ${response.body}',
+      );
     }
   }
 }
