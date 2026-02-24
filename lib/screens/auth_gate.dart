@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/token_service.dart';
 import 'login_page.dart';
-import 'home_page.dart';
+// import 'home_page.dart';
 
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
