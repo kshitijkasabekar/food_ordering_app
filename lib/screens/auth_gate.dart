@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/token_service.dart';
-import 'login_page.dart';
-// import 'home_page.dart';
+import 'login_page.dart' as login;
+import 'home_page.dart' as home;
 
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
@@ -27,12 +27,12 @@ class _AuthGateState extends State<AuthGate> {
     if (token != null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
+        MaterialPageRoute(builder: (_) => const home.HomePage()),
       );
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
+        MaterialPageRoute(builder: (_) => const login.LoginPage()),
       );
     }
   }
