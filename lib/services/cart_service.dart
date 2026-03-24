@@ -31,3 +31,4 @@ class CartService {
       throw Exception("Failed to load cart items");
     }
   }
+}
