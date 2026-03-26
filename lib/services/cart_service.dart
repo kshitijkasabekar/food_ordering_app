@@ -1,34 +1,30 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../models/cart_item.dart';
-import 'token_service.dart';
+import '../models/food_item.dart';
 
 class CartService {
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static final CartService _instance = CartService._internal();
 
-  final TokenService _tokenService = TokenService();
+  factory CartService() {
+    return _instance;
+  }
 
-  Future<List<CartItem>> fetchCartItems() async {
-    final token = await _tokenService.getAccessToken();
+  CartService._internal();
 
-    final url = Uri.parse('$baseUrl/cart/');
+  final List<CartItem> _cartItems = [];
 
-    final response = await http.get(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
+  List<CartItem> get cartItems => _cartItems;
+
+  void addToCart(FoodItem food) {
+    final index = _cartItems.indexWhere(
+      (item) => item.food.id == food.id,
     );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      final List results = data['results'];
-
-      return results.map((item) => CartItem.fromJson(item)).toList();
+    if (index != -1) {
+      _cartItems[index].quantity++;
     } else {
-      throw Exception("Failed to load cart items");
+      _cartItems.add(
+        CartItem(food: food, quantity: 1),
+      );
     }
   }
 }
