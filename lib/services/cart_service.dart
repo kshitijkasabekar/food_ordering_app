@@ -14,6 +14,16 @@ class CartService {
 
   List<CartItem> get cartItems => _cartItems;
 
+  int get totalItems {
+    int total = 0;
+
+    for (var item in _cartItems) {
+      total += item.quantity;
+    }
+
+    return total;
+  }
+
   void addToCart(FoodItem food) {
     final index = _cartItems.indexWhere(
       (item) => item.food.id == food.id,
