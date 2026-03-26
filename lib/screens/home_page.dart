@@ -61,6 +61,29 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Food Items"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Center(
+              child: GestureDetector(
+                onTap: () {
+                },
+                child: Row(
+                  children: [
+                    const Icon(Icons.shopping_cart),
+
+                    const SizedBox(width: 4),
+
+                    Text(
+                      _cartService.totalItems.toString(),
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(12),
@@ -87,7 +110,9 @@ class _HomePageState extends State<HomePage> {
                   /// ADD Button
                   ElevatedButton(
                     onPressed: () {
-                      _cartService.addToCart(food);
+                      setState(() {
+                        _cartService.addToCart(food);
+                      });
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('${food.name} added to cart')),
                       );
