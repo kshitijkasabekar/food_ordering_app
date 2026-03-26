@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/food_service.dart';
 import '../models/food_item.dart';
+import '../services/cart_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,6 +13,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   final FoodService _foodService = FoodService();
+  final CartService _cartService = CartService();
 
   List<FoodItem> _foods = [];
   bool _isLoading = true;
@@ -60,44 +62,19 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text("Food Items"),
       ),
-
       body: ListView.builder(
         padding: const EdgeInsets.all(12),
         itemCount: _foods.length,
         itemBuilder: (context, index) {
-
           final food = _foods[index];
-
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             elevation: 3,
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-
-                  /// Food Name
-                  Text(
-                    food.name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 6),
-
-                  /// Description
-                  Text(
-                    food.description,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
                   /// Price
                   Text(
                     "₹${food.price}",
@@ -106,6 +83,16 @@ class _HomePageState extends State<HomePage> {
                       fontWeight: FontWeight.w600,
                       color: Colors.green,
                     ),
+                  ),
+                  /// ADD Button
+                  ElevatedButton(
+                    onPressed: () {
+                      _cartService.addToCart(food);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${food.name} added to cart')),
+                      );
+                    },
+                    child: const Text("ADD"),
                   ),
                 ],
               ),
