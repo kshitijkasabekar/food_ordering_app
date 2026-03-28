@@ -37,4 +37,28 @@ class CartService {
       );
     }
   }
+
+  void increaseQuantity(FoodItem food) {
+    final index = _cartItems.indexWhere(
+      (item) => item.food.id == food.id,
+    );
+
+    if (index != -1) {
+      _cartItems[index].quantity++;
+    }
+  }
+
+  void decreaseQuantity(FoodItem food) {
+    final index = _cartItems.indexWhere(
+      (item) => item.food.id == food.id,
+    );
+
+    if (index != -1) {
+      if (_cartItems[index].quantity > 1) {
+        _cartItems[index].quantity--;
+      } else {
+        _cartItems.removeAt(index);
+      }
+    }
+  }
 }
