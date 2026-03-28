@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/food_service.dart';
 import '../models/food_item.dart';
 import '../services/cart_service.dart';
+import 'cart_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -67,6 +68,10 @@ class _HomePageState extends State<HomePage> {
             child: Center(
               child: GestureDetector(
                 onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CartPage()),
+                  ).then((_) => setState(() {}));
                 },
                 child: Row(
                   children: [
