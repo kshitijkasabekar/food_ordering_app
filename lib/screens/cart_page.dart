@@ -10,6 +10,11 @@ class CartPage extends StatelessWidget {
     final cartService = CartService();
     final cartItems = cartService.cartItems;
 
+    double totalAmount = 0;
+    for (var item in cartItems) {
+      totalAmount += item.food.price * item.quantity;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Your Cart"),
@@ -42,6 +47,37 @@ class CartPage extends StatelessWidget {
                 );
               },
             ),
+            bottomNavigationBar: cartItems.isEmpty
+            ? null
+            : Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: Colors.grey),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    /// Total Text
+                    Text(
+                      "Total: ₹${totalAmount.toStringAsFixed(2)}",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    /// Checkout Button
+                    ElevatedButton(
+                      onPressed: () {
+                        // Next step later
+                      },
+                      child: const Text("Checkout"),
+                    ),
+                  ],
+                ),
+              ),
     );
   }
 }
