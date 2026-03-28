@@ -33,16 +33,29 @@ class CartPage extends StatelessWidget {
 
                 return ListTile(
                   title: Text(food.name),
+                  subtitle: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () {
+                          cartService.decreaseQuantity(food);
+                          (context as Element).markNeedsBuild();
+                        },
+                      ),
 
-                  subtitle: Text(
-                    "Qty: ${item.quantity} • ₹${food.price}",
+                      Text("${item.quantity}"),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {
+                          cartService.increaseQuantity(food);
+                          (context as Element).markNeedsBuild();
+                        },
+                      ),
+                    ],
                   ),
-
                   trailing: Text(
-                    "₹${food.price * item.quantity}",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    "₹${(food.price * item.quantity).toStringAsFixed(2)}",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 );
               },
