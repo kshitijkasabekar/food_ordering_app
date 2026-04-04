@@ -61,4 +61,8 @@ class CartService {
       }
     }
   }
+
+  void clearCart() {
+    _cartItems.clear();
+  }
 }
