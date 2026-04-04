@@ -84,8 +84,14 @@ class CartPage extends StatelessWidget {
                     /// Checkout Button
                     ElevatedButton(
                       onPressed: () {
-                        // Next step later
-                      },
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Order placed successfully!")),
+                          );
+
+                          final cartService = CartService();
+                          cartService.clearCart();
+                          Navigator.pop(context);
+                        },
                       child: const Text("Checkout"),
                     ),
                   ],
