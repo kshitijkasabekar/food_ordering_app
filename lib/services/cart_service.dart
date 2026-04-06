@@ -43,27 +43,14 @@ class CartService {
         'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
-        'food_id': food.id,
+        'foodId': food.id,
         'quantity': 1,
       }),
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      addToCart(food);
-    } else {
+    if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception(
         'Failed to add item to cart (${response.statusCode}): ${response.body}',
-      );
-    }
-    final index = _cartItems.indexWhere(
-      (item) => item.food.id == food.id,
-    );
-
-    if (index != -1) {
-      _cartItems[index].quantity++;
-    } else {
-      _cartItems.add(
-        CartItem(food: food, quantity: 1),
       );
     }
   }
