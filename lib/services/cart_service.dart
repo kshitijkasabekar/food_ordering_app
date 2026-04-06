@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'package:food_ordering_app/services/token_service.dart';
+import 'package:http/http.dart' as http;
 import '../models/cart_item.dart';
 import '../models/food_item.dart';
 
 class CartService {
   static final CartService _instance = CartService._internal();
+  static const String baseUrl = 'http://10.0.2.2:8000';
 
   factory CartService() {
     return _instance;
@@ -11,6 +15,7 @@ class CartService {
   CartService._internal();
 
   final List<CartItem> _cartItems = [];
+  final TokenService _tokenService = TokenService();
 
   List<CartItem> get cartItems => _cartItems;
 
@@ -24,7 +29,32 @@ class CartService {
     return total;
   }
 
-  void addToCart(FoodItem food) {
+  Future<void> addToCart(FoodItem food) async {
+    final token = await _tokenService.getAccessToken();
+    if (token == null) {
+      throw Exception("User not authenticated");
+    }
+
+    final url = Uri.parse('$baseUrl/cart-items/');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'food_id': food.id,
+        'quantity': 1,
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      addToCart(food);
+    } else {
+      throw Exception(
+        'Failed to add item to cart (${response.statusCode}): ${response.body}',
+      );
+    }
     final index = _cartItems.indexWhere(
       (item) => item.food.id == food.id,
     );
