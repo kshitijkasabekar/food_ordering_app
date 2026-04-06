@@ -114,11 +114,14 @@ class _HomePageState extends State<HomePage> {
                   ),
                   /// ADD Button
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      await _cartService.addToCart(food);
+                      if (!mounted) return;
                       setState(() {
-                        _cartService.addToCart(food);
+                        // trigger rebuild
                       });
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      messenger.showSnackBar(
                         SnackBar(content: Text('${food.name} added to cart')),
                       );
                     },
