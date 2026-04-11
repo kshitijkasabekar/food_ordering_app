@@ -1,78 +1,90 @@
 import 'package:flutter/material.dart';
 import '../services/cart_service.dart';
+import '../models/cart_item.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-
-    final cartService = CartService();
-    final cartItems = cartService.cartItems;
-
-    double totalAmount = 0;
-    for (var item in cartItems) {
-      totalAmount += item.food.price * item.quantity;
-    }
+    final CartService cartService = CartService();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Your Cart"),
       ),
 
-      body: cartItems.isEmpty
-          ? const Center(
+      body: FutureBuilder<List<CartItem>>(
+        future: cartService.fetchCartItems(),
+        builder: (context, snapshot) {
+
+          /// Loading
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          /// Error
+          if (snapshot.hasError) {
+            return Center(
+              child: Text("Error: ${snapshot.error}"),
+            );
+          }
+
+          final cartItems = snapshot.data ?? [];
+
+          /// Empty cart
+          if (cartItems.isEmpty) {
+            return const Center(
               child: Text("Cart is empty"),
-            )
-          : ListView.builder(
-              itemCount: cartItems.length,
-              itemBuilder: (context, index) {
+            );
+          }
 
-                final item = cartItems[index];
-                final food = item.food;
+          /// Calculate total
+          double totalAmount = 0;
+          for (var item in cartItems) {
+            totalAmount += item.food.price * item.quantity;
+          }
 
-                return ListTile(
-                  title: Text(food.name),
-                  subtitle: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: () {
-                          cartService.decreaseQuantity(food);
-                          (context as Element).markNeedsBuild();
-                        },
+          return Column(
+            children: [
+
+              /// List
+              Expanded(
+                child: ListView.builder(
+                  itemCount: cartItems.length,
+                  itemBuilder: (context, index) {
+
+                    final item = cartItems[index];
+                    final food = item.food;
+
+                    return ListTile(
+                      title: Text(food.name),
+
+                      subtitle: Text(
+                        "Qty: ${item.quantity} • ₹${food.price}",
                       ),
 
-                      Text("${item.quantity}"),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () {
-                          cartService.increaseQuantity(food);
-                          (context as Element).markNeedsBuild();
-                        },
+                      trailing: Text(
+                        "₹${(food.price * item.quantity).toStringAsFixed(2)}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ],
-                  ),
-                  trailing: Text(
-                    "₹${(food.price * item.quantity).toStringAsFixed(2)}",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                );
-              },
-            ),
-            bottomNavigationBar: cartItems.isEmpty
-            ? null
-            : Container(
+                    );
+                  },
+                ),
+              ),
+
+              /// Total + Checkout
+              Container(
                 padding: const EdgeInsets.all(16),
                 decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Colors.grey),
-                  ),
+                  border: Border(top: BorderSide(color: Colors.grey)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    /// Total Text
+
                     Text(
                       "Total: ₹${totalAmount.toStringAsFixed(2)}",
                       style: const TextStyle(
@@ -81,22 +93,25 @@ class CartPage extends StatelessWidget {
                       ),
                     ),
 
-                    /// Checkout Button
                     ElevatedButton(
                       onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Order placed successfully!")),
-                          );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Order placed successfully!"),
+                          ),
+                        );
 
-                          final cartService = CartService();
-                          cartService.clearCart();
-                          Navigator.pop(context);
-                        },
+                        Navigator.pop(context);
+                      },
                       child: const Text("Checkout"),
                     ),
                   ],
                 ),
               ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
