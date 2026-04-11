@@ -55,26 +55,66 @@ class CartService {
     }
   }
 
-  void increaseQuantity(FoodItem food) {
-    final index = _cartItems.indexWhere(
-      (item) => item.food.id == food.id,
+  Future<void> increaseQuantity(String cartItemId, int currentQty) async {
+    final token = await _tokenService.getAccessToken();
+
+    if (token == null) {
+      throw Exception("User not authenticated");
+    }
+
+    final url = Uri.parse('$baseUrl/cart-items/$cartItemId/');
+
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'quantity': currentQty + 1,
+      }),
     );
 
-    if (index != -1) {
-      _cartItems[index].quantity++;
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update quantity');
     }
   }
 
-  void decreaseQuantity(FoodItem food) {
-    final index = _cartItems.indexWhere(
-      (item) => item.food.id == food.id,
-    );
+  Future<void> decreaseQuantity(String cartItemId, int currentQty) async {
+    final token = await _tokenService.getAccessToken();
 
-    if (index != -1) {
-      if (_cartItems[index].quantity > 1) {
-        _cartItems[index].quantity--;
-      } else {
-        _cartItems.removeAt(index);
+    if (token == null) {
+      throw Exception("User not authenticated");
+    }
+
+    final url = Uri.parse('$baseUrl/cart-items/$cartItemId/');
+
+    if (currentQty > 1) {
+      final response = await http.patch(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'quantity': currentQty - 1,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update quantity');
+      }
+    } else {
+      /// Remove item if quantity = 1
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode != 204 && response.statusCode != 200) {
+        throw Exception('Failed to remove item');
       }
     }
   }
