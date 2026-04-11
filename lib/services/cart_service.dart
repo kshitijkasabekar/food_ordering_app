@@ -82,4 +82,32 @@ class CartService {
   void clearCart() {
     _cartItems.clear();
   }
+
+  Future<List<CartItem>> fetchCartItems() async {
+    final token = await _tokenService.getAccessToken();
+
+    if (token == null) {
+      throw Exception("User not authenticated");
+    }
+
+    final url = Uri.parse('$baseUrl/cart-items/');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      final List results = data['results'];
+
+      return results.map((item) => CartItem.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to fetch cart items');
+    }
+  }
 }
