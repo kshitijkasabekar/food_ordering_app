@@ -19,10 +19,13 @@ class _HomePageState extends State<HomePage> {
   List<FoodItem> _foods = [];
   bool _isLoading = true;
 
+  int _cartCount = 0;
+
   @override
   void initState() {
     super.initState();
     _loadFoods();
+    _loadCartCount();
   }
 
   Future<void> _loadFoods() async {
@@ -47,6 +50,26 @@ class _HomePageState extends State<HomePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error loading foods: $e")),
       );
+    }
+  }
+
+    Future<void> _loadCartCount() async {
+    try {
+      final items = await _cartService.fetchCartItems();
+
+      if (!mounted) return;
+
+      int total = 0;
+      for (var item in items) {
+        total += item.quantity;
+      }
+
+      setState(() {
+        _cartCount = total;
+      });
+
+    } catch (e) {
+      // optional
     }
   }
 
@@ -80,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(width: 4),
 
                     Text(
-                      _cartService.totalItems.toString(),
+                      _cartCount.toString(),
                       style: const TextStyle(fontSize: 16),
                     ),
                   ],
