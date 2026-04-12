@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/cart_service.dart';
+import '../services/order_service.dart';
 import '../models/cart_item.dart';
 
 class CartPage extends StatefulWidget {
@@ -11,6 +12,7 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   final CartService _cartService = CartService();
+  final OrderService _orderService = OrderService();
 
   late Future<List<CartItem>> _cartFuture;
 
@@ -28,6 +30,29 @@ class _CartPageState extends State<CartPage> {
     setState(() {
       _loadCart();
     });
+  }
+
+  Future<void> _handleCheckout() async {
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      await _orderService.placeOrder();
+
+      if (!mounted) return;
+
+      messenger.showSnackBar(
+        const SnackBar(content: Text("Order placed successfully!")),
+      );
+
+      Navigator.pop(context); // go back to Home
+
+    } catch (e) {
+      if (!mounted) return;
+
+      messenger.showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
   }
 
   @override
@@ -162,15 +187,7 @@ class _CartPageState extends State<CartPage> {
                     ),
 
                     ElevatedButton(
-                      onPressed: () {
-                        messenger.showSnackBar(
-                          const SnackBar(
-                            content: Text("Order placed successfully!"),
-                          ),
-                        );
-
-                        Navigator.pop(context);
-                      },
+                      onPressed: _handleCheckout,
                       child: const Text("Checkout"),
                     ),
                   ],
