@@ -3,6 +3,7 @@ import '../services/food_service.dart';
 import '../models/food_item.dart';
 import '../services/cart_service.dart';
 import 'cart_page.dart';
+import 'orders_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,6 +30,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadFoods() async {
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       final foods = await _foodService.fetchFoodItems();
 
@@ -40,20 +43,19 @@ class _HomePageState extends State<HomePage> {
       });
 
     } catch (e) {
-
       if (!mounted) return;
 
       setState(() {
         _isLoading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(content: Text("Error loading foods: $e")),
       );
     }
   }
 
-    Future<void> _loadCartCount() async {
+  Future<void> _loadCartCount() async {
     try {
       final items = await _cartService.fetchCartItems();
 
@@ -73,6 +75,29 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _handleAddToCart(FoodItem food) async {
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      await _cartService.addToCart(food);
+
+      if (!mounted) return;
+
+      await _loadCartCount(); // ✅ refresh count from API
+
+      messenger.showSnackBar(
+        SnackBar(content: Text('${food.name} added to cart')),
+      );
+
+    } catch (e) {
+      if (!mounted) return;
+
+      messenger.showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -86,6 +111,21 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text("Food Items"),
         actions: [
+
+          /// Orders Button
+          IconButton(
+            icon: const Icon(Icons.receipt_long),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const OrdersPage(),
+                ),
+              );
+            },
+          ),
+
+          /// Cart Button
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: Center(
@@ -93,8 +133,10 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const CartPage()),
-                  ).then((_) => setState(() {}));
+                    MaterialPageRoute(
+                      builder: (_) => const CartPage(),
+                    ),
+                  ).then((_) => _loadCartCount()); // ✅ refresh after return
                 },
                 child: Row(
                   children: [
@@ -113,11 +155,13 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+
       body: ListView.builder(
         padding: const EdgeInsets.all(12),
         itemCount: _foods.length,
         itemBuilder: (context, index) {
           final food = _foods[index];
+
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             elevation: 3,
@@ -126,28 +170,44 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  /// Price
-                  Text(
-                    "₹${food.price}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.green,
+
+                  /// Food Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          food.name,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 4),
+
+                        Text(
+                          food.description,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        Text(
+                          "₹${food.price}",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+
                   /// ADD Button
                   ElevatedButton(
-                    onPressed: () async {
-                      final messenger = ScaffoldMessenger.of(context);
-                      await _cartService.addToCart(food);
-                      if (!mounted) return;
-                      setState(() {
-                        // trigger rebuild
-                      });
-                      messenger.showSnackBar(
-                        SnackBar(content: Text('${food.name} added to cart')),
-                      );
-                    },
+                    onPressed: () => _handleAddToCart(food),
                     child: const Text("ADD"),
                   ),
                 ],
