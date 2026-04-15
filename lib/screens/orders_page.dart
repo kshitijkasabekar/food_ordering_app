@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/order_service.dart';
 import '../models/order.dart';
+import 'order_details_page.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
@@ -17,7 +18,30 @@ class _OrdersPageState extends State<OrdersPage> {
   @override
   void initState() {
     super.initState();
+    _loadOrders();
+  }
+
+  void _loadOrders() {
     _ordersFuture = _orderService.fetchOrders();
+  }
+
+  Future<void> _refreshOrders() async {
+    setState(() {
+      _loadOrders();
+    });
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toUpperCase()) {
+      case "DELIVERED":
+        return Colors.green;
+      case "PLACED":
+        return Colors.orange;
+      case "CANCELLED":
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 
   @override
@@ -48,47 +72,89 @@ class _OrdersPageState extends State<OrdersPage> {
             );
           }
 
-          return ListView.builder(
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
+          return RefreshIndicator(
+            onRefresh: _refreshOrders,
+            child: ListView.builder(
+              itemCount: orders.length,
+              itemBuilder: (context, index) {
 
-              final order = orders[index];
+                final order = orders[index];
 
-              return Card(
-                margin: const EdgeInsets.all(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                      /// Order ID
-                      Text(
-                        "Order #${order.id}",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => OrderDetailsPage(
+                          orderId: order.id,
                         ),
                       ),
+                    );
+                  },
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    elevation: 3,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
 
-                      const SizedBox(height: 8),
+                          /// Order ID
+                          Text(
+                            "Order #${order.id}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
 
-                      /// Total
-                      Text("Total: ₹${order.total}"),
+                          const SizedBox(height: 8),
 
-                      const SizedBox(height: 4),
+                          /// Total
+                          Text(
+                            "Total: ₹${order.total}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
 
-                      /// Status
-                      Text("Status: ${order.status}"),
+                          const SizedBox(height: 6),
 
-                      const SizedBox(height: 4),
+                          /// Status with color
+                          Row(
+                            children: [
+                              const Text("Status: "),
+                              Text(
+                                order.status,
+                                style: TextStyle(
+                                  color: _getStatusColor(order.status),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
 
-                      /// Date
-                      Text("Placed on: ${order.createdAt}"),
-                    ],
+                          const SizedBox(height: 6),
+
+                          /// Date
+                          Text(
+                            "Placed on: ${order.createdAt}",
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),
