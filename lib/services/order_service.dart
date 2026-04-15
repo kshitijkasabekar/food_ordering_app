@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'token_service.dart';
 import '../models/order.dart';
+import '../models/order_details.dart';
 
 class OrderService {
   static const String baseUrl = 'http://10.0.2.2:8000';
@@ -54,6 +55,30 @@ class OrderService {
       return results.map((e) => Order.fromJson(e)).toList();
     } else {
       throw Exception('Failed to fetch orders');
+    }
+  }
+
+    Future<OrderDetails> fetchOrderDetails(String orderId) async {
+    final token = await _tokenService.getAccessToken();
+
+    if (token == null) {
+      throw Exception("User not authenticated");
+    }
+
+    final url = Uri.parse('$baseUrl/orders/$orderId/');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return OrderDetails.fromJson(data);
+    } else {
+      throw Exception("Failed to fetch order details");
     }
   }
 }
