@@ -44,6 +44,11 @@ class _OrdersPageState extends State<OrdersPage> {
     }
   }
 
+  String _formatDate(String rawDate) {
+    final date = DateTime.parse(rawDate).toLocal();
+    return "${date.day}/${date.month}/${date.year}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,64 +80,82 @@ class _OrdersPageState extends State<OrdersPage> {
           return RefreshIndicator(
             onRefresh: _refreshOrders,
             child: ListView.builder(
+              padding: const EdgeInsets.all(12),
               itemCount: orders.length,
               itemBuilder: (context, index) {
 
                 final order = orders[index];
+                final statusColor = _getStatusColor(order.status);
 
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => OrderDetailsPage(
-                          orderId: order.id,
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 4,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => OrderDetailsPage(
+                            orderId: order.id,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    elevation: 3,
+                      );
+                    },
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
 
-                          /// Order ID
-                          Text(
-                            "Order #${order.id}",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                          /// Top Row (ID + Status)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Order #${order.id.substring(0, 6)}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+
+                              /// Status Badge
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: statusColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  order.status,
+                                  style: TextStyle(
+                                    color: statusColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
 
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 10),
 
                           /// Total
-                          Text(
-                            "Total: ₹${order.total}",
-                            style: const TextStyle(
-                              fontSize: 14,
-                            ),
-                          ),
-
-                          const SizedBox(height: 6),
-
-                          /// Status with color
                           Row(
                             children: [
-                              const Text("Status: "),
+                              const Icon(Icons.currency_rupee, size: 16),
                               Text(
-                                order.status,
-                                style: TextStyle(
-                                  color: _getStatusColor(order.status),
-                                  fontWeight: FontWeight.bold,
+                                order.total.toString(),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -141,12 +164,39 @@ class _OrdersPageState extends State<OrdersPage> {
                           const SizedBox(height: 6),
 
                           /// Date
-                          Text(
-                            "Placed on: ${order.createdAt}",
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            ),
+                          Row(
+                            children: [
+                              const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Text(
+                                _formatDate(order.createdAt),
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          /// Divider
+                          const Divider(),
+
+                          const SizedBox(height: 6),
+
+                          /// CTA
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "View Details",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Icon(Icons.arrow_forward_ios, size: 14),
+                            ],
                           ),
                         ],
                       ),
