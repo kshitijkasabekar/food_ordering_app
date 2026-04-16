@@ -44,9 +44,14 @@ class _OrdersPageState extends State<OrdersPage> {
     }
   }
 
-  String _formatDate(String rawDate) {
-    final date = DateTime.parse(rawDate).toLocal();
-    return "${date.day}/${date.month}/${date.year}";
+  String _timeAgo(String rawDate) {
+    final date = DateTime.parse(rawDate);
+    final diff = DateTime.now().difference(date);
+
+    if (diff.inDays > 0) return "${diff.inDays} day(s) ago";
+    if (diff.inHours > 0) return "${diff.inHours} hour(s) ago";
+    if (diff.inMinutes > 0) return "${diff.inMinutes} min ago";
+    return "Just now";
   }
 
   @override
@@ -64,17 +69,13 @@ class _OrdersPageState extends State<OrdersPage> {
           }
 
           if (snapshot.hasError) {
-            return Center(
-              child: Text("Error: ${snapshot.error}"),
-            );
+            return Center(child: Text("Error: ${snapshot.error}"));
           }
 
           final orders = snapshot.data ?? [];
 
           if (orders.isEmpty) {
-            return const Center(
-              child: Text("No orders yet"),
-            );
+            return const Center(child: Text("No orders yet"));
           }
 
           return RefreshIndicator(
@@ -87,21 +88,26 @@ class _OrdersPageState extends State<OrdersPage> {
                 final order = orders[index];
                 final statusColor = _getStatusColor(order.status);
 
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 4,
+                return Container(
                   margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 6,
+                        color: Colors.black.withOpacity(0.05),
+                      )
+                    ],
+                  ),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => OrderDetailsPage(
-                            orderId: order.id,
-                          ),
+                          builder: (_) =>
+                              OrderDetailsPage(orderId: order.id),
                         ),
                       );
                     },
@@ -111,7 +117,7 @@ class _OrdersPageState extends State<OrdersPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
 
-                          /// Top Row (ID + Status)
+                          /// Top Row
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -122,40 +128,11 @@ class _OrdersPageState extends State<OrdersPage> {
                                   fontSize: 16,
                                 ),
                               ),
-
-                              /// Status Badge
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: statusColor.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  order.status,
-                                  style: TextStyle(
-                                    color: statusColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          /// Total
-                          Row(
-                            children: [
-                              const Icon(Icons.currency_rupee, size: 16),
                               Text(
-                                order.total.toString(),
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500,
+                                order.status,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
@@ -163,39 +140,59 @@ class _OrdersPageState extends State<OrdersPage> {
 
                           const SizedBox(height: 6),
 
-                          /// Date
-                          Row(
-                            children: [
-                              const Icon(Icons.access_time, size: 14, color: Colors.grey),
-                              const SizedBox(width: 4),
-                              Text(
-                                _formatDate(order.createdAt),
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
+                          /// Time
+                          Text(
+                            _timeAgo(order.createdAt),
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
                           ),
 
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 12),
 
-                          /// Divider
+                          /// Items preview (mock for now)
+                          const Text(
+                            "Veg Fried Rice, Paneer Tikka",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
                           const Divider(),
 
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
 
-                          /// CTA
-                          const Row(
+                          /// Bottom Row
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
+
+                              /// Total
                               Text(
-                                "View Details",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
+                                "₹${order.total}",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Icon(Icons.arrow_forward_ios, size: 14),
+
+                              /// CTA
+                              Row(
+                                children: const [
+                                  Text(
+                                    "View Details",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Icon(Icons.arrow_forward_ios, size: 14),
+                                ],
+                              ),
                             ],
                           ),
                         ],
